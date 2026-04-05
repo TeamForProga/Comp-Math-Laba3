@@ -12,7 +12,7 @@ using ScottPlot.Avalonia;
 
 using laba3.ViewModels;
 using laba3.Models;
-
+using laba3.Services;
 
 public partial class MainWindowViewModel : ViewModelBase
 {
@@ -25,7 +25,7 @@ public partial class MainWindowViewModel : ViewModelBase
     
     public ObservableCollection<string> CoordInput { get; } = ["", ""];
     public ObservableCollection<string> PolynomiaInput { get; } = ["", "","", "", ""];
-    public string SquresPowerInput { get; set; } = "";
+    public string SquaresPowerInput { get; set; } = "";
 
     [NotifyCanExecuteChangedFor(nameof(ReplaceCoordCommand))]
     [NotifyCanExecuteChangedFor(nameof(DeleteCoordCommand))]
@@ -62,9 +62,9 @@ public partial class MainWindowViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    void SquresSmoothing() 
+    void SquaresSmoothing() 
     {
-        if (!int.TryParse(SquresPowerInput, out int power)) {
+        if (!int.TryParse(SquaresPowerInput, out int power)) {
             WindowService?.NotificationManager?.Show($"Power must be natural number (indcluded zero)", NotificationType.Warning, TimeSpan.FromSeconds(3));
             return;
         }
@@ -160,7 +160,7 @@ public partial class MainWindowViewModel : ViewModelBase
     {        
         var res = TryParsePolynomiaInput(); 
         if (res is not null) {
-            res.Points = [.. Coords];
+            //res.Points = [.. Coords];
             ApproximateFuncs.Add(res);
             
             UpdatePlot();
@@ -176,7 +176,7 @@ public partial class MainWindowViewModel : ViewModelBase
         var res = TryParsePolynomiaInput();
         if (res is not null)
         {
-            res.Points = [.. Coords];
+            //res.Points = [.. Coords];
             ApproximateFuncs[ApproximateFuncs.IndexOf(SelectedAprFunc)] = res;
             SelectedAprFunc = null;
 
@@ -212,8 +212,16 @@ public partial class MainWindowViewModel : ViewModelBase
         int dataIndex = 0;
         foreach(var item in ApproximateFuncs)
         {
+            
+
             double min = double.MaxValue;
             double max = double.MinValue;
+            
+            if (item is Polynomia) {
+                min = -1000;
+                max = 1000;
+            }
+
             for (int i = 0; i < item.Points.Count; ++i)
             {
                 if (item.Points[i].X > max) max = item.Points[i].X;
@@ -224,10 +232,10 @@ public partial class MainWindowViewModel : ViewModelBase
 
             double step = (max - min) / pointCount;
             
-            dataX[dataIndex] = new double[pointCount];
-            dataY[dataIndex] = new double[pointCount];
+            dataX[dataIndex] = new double[pointCount + 1];
+            dataY[dataIndex] = new double[pointCount + 1];
 
-            for (int i = 0; i < pointCount; i++) {
+            for (int i = 0; i <= pointCount; i++) {
                 double tempX = step * i + min;
                 dataX[dataIndex][i] = tempX;
                 dataY[dataIndex][i] = item.Func(tempX);
@@ -253,5 +261,65 @@ public partial class MainWindowViewModel : ViewModelBase
         }
 
         APlot.Refresh();
+    }
+
+    public AppState BuildState()
+    {
+        List<Polynomia> Polynomias = [];
+        List<ApproxLagrangeFunc> ApproxLagrangeFuncs = [];
+        List<ApproxNewtonFunc> ApproxNewtonFuncs = [];
+        List<LeastSquares> LeastSquaress = [];
+        
+        List<Coord> Coordss = [.. Coords];
+
+        foreach (var func in ApproximateFuncs)
+        {
+            switch (func)
+            {
+            case Polynomia polynomia:
+                Polynomias.Add(polynomia);
+                break; 
+            case ApproxLagrangeFunc aLagrange: 
+                ApproxLagrangeFuncs.Add(aLagrange);
+                break; 
+            case ApproxNewtonFunc aNewton: 
+                ApproxNewtonFuncs.Add(aNewton);
+                break; 
+            case LeastSquares Least: 
+                LeastSquaress.Add(Least);
+                break; 
+            }
+        }
+
+        AppState appState = new() 
+        {
+            Polynomia = Polynomias,
+            ApproxLagrangeFunc = ApproxLagrangeFuncs,
+            ApproxNewtonFunc = ApproxNewtonFuncs,
+            LeastSquares = LeastSquaress,
+            Coord = Coordss
+        };
+        
+        return appState;
+    }
+
+    public async Task LoadAsync()
+    {
+        var state = await DataStorageService.LoadAsync();
+
+        ApproximateFuncs.Clear();
+        Coords.Clear();
+
+        foreach (var func in state.ApproxLagrangeFunc)
+            ApproximateFuncs.Add(func);
+        foreach (var func in state.ApproxNewtonFunc)
+            ApproximateFuncs.Add(func);
+        foreach (var func in state.LeastSquares)
+            ApproximateFuncs.Add(func);
+        foreach (var func in state.Polynomia)
+            ApproximateFuncs.Add(func);
+
+        foreach (var coord in state.Coord)
+            Coords.Add(coord);
     }
 }

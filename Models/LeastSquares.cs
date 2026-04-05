@@ -11,11 +11,11 @@ public class LeastSquares : IApproximateFunc
     public List<Coord> Points { get; set; }
     
     // Степень многочлена
-    private int k;
+    public int k;
     // Кол-во точек
-    private  int n;
-    private  Vector<double> X;
-    private  Vector<double> Y;
+    public int n;
+    public Vector<double> X;
+    public Vector<double> Y;
 
     public string Name { get; set; } = "LeastSquares";
 
@@ -66,8 +66,8 @@ public class LeastSquares : IApproximateFunc
         k = power + 1;
         n = points.Count;
 
-        X = Vector<double>.Build.DenseOfArray(Points.Select(p => p.X).ToArray());
-        Y = Vector<double>.Build.DenseOfArray(Points.Select(p => p.Y).ToArray());
+        X = Vector<double>.Build.DenseOfArray([.. Points.Select(p => p.X)]);
+        Y = Vector<double>.Build.DenseOfArray([.. Points.Select(p => p.Y)]);
         
         // коэффициенты правой части
         var D = Vector<double>.Build.Dense(n);
@@ -98,5 +98,7 @@ public class LeastSquares : IApproximateFunc
         
         // Значения коэффициентов аппроксимирующего многочлена Ai являются решением полученной системы 
         Coefficients = M.Solve(D);
+
+        Name += $"^{power}";
     }
 }

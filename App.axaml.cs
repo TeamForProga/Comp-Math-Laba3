@@ -18,7 +18,7 @@ public partial class App : Application
         AvaloniaXamlLoader.Load(this);
     }
 
-    public override void OnFrameworkInitializationCompleted()
+    public override async void OnFrameworkInitializationCompleted()
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
@@ -34,9 +34,32 @@ public partial class App : Application
             };
 
             MainWindowVM.WindowService = new WindowService(desktop.MainWindow);
+            desktop.ShutdownRequested += DesktopOnShutdownRequested;
+        
+            await MainWindowVM.LoadAsync();
         }
 
         base.OnFrameworkInitializationCompleted();
+    }
+
+    private bool _canClose;
+
+    private async void DesktopOnShutdownRequested(object? sender, ShutdownRequestedEventArgs e)
+    {
+        if (_canClose) return;
+        e.Cancel = true;
+
+        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+        {
+            if (desktop?.MainWindow?.DataContext is MainWindowViewModel mainWVN)
+            {
+                var state = mainWVN.BuildState();
+                await DataStorageService.SaveAsync(state);
+            }
+
+            _canClose = true;
+            desktop?.Shutdown();
+        }
     }
 
     private void DisableAvaloniaDataAnnotationValidation()

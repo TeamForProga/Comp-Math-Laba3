@@ -32,8 +32,8 @@
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                             <Button Content="Lagrange" Width="100" Command="{Binding LagrangeApproximateCommand}"/>
                             <Button Content="Newton" Width="100" Command="{Binding NewtonApproximateCommand}"/>
-                            <Button Content="Squres" Width="100" Command="{Binding SquresSmoothingCommand}"/>
-                            <TextBox Text="{Binding SquresPowerInput}" Watermark="Power"/> 
+                            <Button Content="Squares" Width="100" Command="{Binding SquaresSmoothingCommand}"/>
+                            <TextBox Text="{Binding SquaresPowerInput}" Watermark="Power"/> 
                         </StackPanel>
                         
                         <Grid ColumnDefinitions="*, *, Auto">

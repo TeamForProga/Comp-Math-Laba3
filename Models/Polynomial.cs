@@ -4,7 +4,7 @@ namespace laba3.Models;
 
 public class Polynomia : IApproximateFunc
 {
-    public List<double> Coefficients = [];
+    public List<double> Coefficients { get; set; } = [];
     public List<Coord> Points { get; set; } = [];
 
     public string Name { get; set; } = "Polynomia";

@@ -9,7 +9,12 @@ namespace laba3.Services;
 
 public record AppState
 {
-    public List<Polynomia> Polynomia { get; init; } = new();
+    public List<Polynomia> Polynomia { get; init; } = [];
+    public List<ApproxLagrangeFunc> ApproxLagrangeFunc { get; init; } = [];
+    public List<ApproxNewtonFunc> ApproxNewtonFunc { get; init; } = [];
+    public List<LeastSquares> LeastSquares { get; init; } = [];
+    public List<Coord> Coord { get; init; } = [];
+
 }
 
 public static class DataStorageService
@@ -37,11 +42,15 @@ public static class DataStorageService
         {
             await using var fs = File.OpenRead(JsonFilePath);
             var state = await JsonSerializer.DeserializeAsync<AppState>(fs, Options);
+
             return state ?? new AppState();
         }
-        catch
+        catch (Exception e)
         {
+            System.Console.WriteLine($"Hello {e}  ");
+            
             return new AppState();
+
         }
     }
 }
