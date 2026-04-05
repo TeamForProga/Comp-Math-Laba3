@@ -45,9 +45,9 @@ public static class DataStorageService
 
             return state ?? new AppState();
         }
-        catch (Exception e)
+        catch
         {
-            System.Console.WriteLine($"Hello {e}  ");
+            //System.Console.WriteLine($"Hello {e}  ");
             
             return new AppState();
 

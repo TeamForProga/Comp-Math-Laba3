@@ -216,10 +216,13 @@ public partial class MainWindowViewModel : ViewModelBase
 
             double min = double.MaxValue;
             double max = double.MinValue;
+
+            int pointCount = 1000;
             
             if (item is Polynomia) {
-                min = -1000;
-                max = 1000;
+                min = -100;
+                max = 100;
+                pointCount = 3000;
             }
 
             for (int i = 0; i < item.Points.Count; ++i)
@@ -228,7 +231,6 @@ public partial class MainWindowViewModel : ViewModelBase
                 if (item.Points[i].X < min) min = item.Points[i].X;
             }
 
-            const int pointCount = 1000;
 
             double step = (max - min) / pointCount;
             
@@ -251,13 +253,14 @@ public partial class MainWindowViewModel : ViewModelBase
             var scatter = APlot.Plot.Add.Scatter(dataX[i], dataY[i]);
             
             scatter.MarkerSize = 2;
-
-            foreach (var point in ApproximateFuncs[i].Points) {
-                APlot.Plot.Add.Marker(point.X, point.Y, ScottPlot.MarkerShape.FilledCircle, 10, scatter.Color);
-                var line = APlot.Plot.Add.Line(point.X, 0, point.X, point.Y);
-                line.LinePattern = ScottPlot.LinePattern.Dashed;
-                line.Color = ScottPlot.Colors.SeaGreen;
-            }
+            if (ApproximateFuncs[i] is not Polynomia)
+                foreach (var point in ApproximateFuncs[i].Points)
+                {
+                    APlot.Plot.Add.Marker(point.X, point.Y, ScottPlot.MarkerShape.FilledCircle, 10, scatter.Color);
+                    var line = APlot.Plot.Add.Line(point.X, 0, point.X, point.Y);
+                    line.LinePattern = ScottPlot.LinePattern.Dashed;
+                    line.Color = ScottPlot.Colors.SeaGreen;
+                }
         }
 
         APlot.Refresh();
