@@ -73,8 +73,8 @@
                     <StackPanel>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" >
                             <Button Content="Add" Width="100" Command="{Binding AddPolynomiaCommand}"/>
-                            <Button Content="Replace" Width="100" Command="{Binding ReplacePolynomiaCommand}"/>
-                            <Button Content="Delete" Width="100" Command="{Binding DeletePolynomiaCommand}"/>
+                            <Button Content="Replace" Width="100" Command="{Binding ReplaceAprFuncCommand}"/>
+                            <Button Content="Delete" Width="100" Command="{Binding DeleteAprFuncCommand}"/>
                         </StackPanel>
                         <Grid ColumnDefinitions="*, *, *, *, *">
                             <StackPanel Grid.Column="0" Margin="0 0 10 0"> 
@@ -114,17 +114,18 @@
                         </Grid>
                     </StackPanel>
 
-                    <DataGrid Grid.Row="1" Margin="0 8 0 0" ItemsSource="{Binding Polynomias}"
+                    <DataGrid Grid.Row="1" Margin="0 8 0 0" ItemsSource="{Binding AproximateFuncs}"
                             AutoGenerateColumns="False" IsReadOnly="True"
                             GridLinesVisibility="All" BorderThickness="1"
                             BorderBrush="Gray" ColumnWidth="*"
-                            SelectedItem="{Binding SelectedPolynomia}" SelectionMode="Single">
+                            SelectedItem="{Binding SelectedAprFunc}" SelectionMode="Single">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="a0" Binding="{Binding Coefficients[0]}" Width="*"/>
-                            <DataGridTextColumn Header="a1" Binding="{Binding Coefficients[1]}" Width="*"/>
-                            <DataGridTextColumn Header="a2" Binding="{Binding Coefficients[2]}" Width="*"/>
-                            <DataGridTextColumn Header="a3" Binding="{Binding Coefficients[3]}" Width="*"/>
-                            <DataGridTextColumn Header="a4" Binding="{Binding Coefficients[4]}" Width="*"/>
+                            <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="Auto"/>
+                            <DataGridTextColumn Header="a0" Binding="{Binding Points[0]}" Width="*"/>
+                            <DataGridTextColumn Header="a1" Binding="{Binding Points[1]}" Width="*"/>
+                            <DataGridTextColumn Header="a2" Binding="{Binding Points[2]}" Width="*"/>
+                            <DataGridTextColumn Header="a3" Binding="{Binding Points[3]}" Width="*"/>
+                            <DataGridTextColumn Header="a4" Binding="{Binding Points[4]}" Width="*"/>
                         </DataGrid.Columns>
                     </DataGrid>
                 </Grid>

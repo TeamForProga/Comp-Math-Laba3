@@ -16,12 +16,12 @@ using laba3.Models;
 
 public partial class MainWindowViewModel : ViewModelBase
 {
-    public ObservableCollection<PolynomiaViewModel> Polynomias { get; } = [];
+    public ObservableCollection<IAproximateFunc> AproximateFuncs { get; } = [];
     public ObservableCollection<Coord> Coords { get; } = [];
 
-    [NotifyCanExecuteChangedFor(nameof(DeletePolynomiaCommand))]
-    [NotifyCanExecuteChangedFor(nameof(ReplacePolynomiaCommand))]
-    [ObservableProperty] private PolynomiaViewModel? _selectedPolynomia;
+    [NotifyCanExecuteChangedFor(nameof(DeleteAprFuncCommand))]
+    [NotifyCanExecuteChangedFor(nameof(ReplaceAprFuncCommand))]
+    [ObservableProperty] private IAproximateFunc? _selectedAprFunc;
     
     public ObservableCollection<string> CoordInput { get; } = ["", ""];
     public ObservableCollection<string> PolynomiaInput { get; } = ["", "","", "", ""];
@@ -33,17 +33,36 @@ public partial class MainWindowViewModel : ViewModelBase
     AvaPlot? APlot = null;
 
     [RelayCommand]
-    void LagrangeAproximate() {
+    void LagrangeAproximate()
+    {
+        if (Coords.Count != 5)
+        {
+            WindowService?.NotificationManager?.Show($"For Lagrange's method you must specify 5 points", NotificationType.Warning, TimeSpan.FromSeconds(3));
+            return;
+        }
 
+        AproximateFuncs.Add(new AproxLagrangeFunc([.. Coords]));
+        
+        UpdatePlot();
     }
 
     [RelayCommand]
-    void NewtonAproximate() {
+    void NewtonAproximate()
+    {
+        if (Coords.Count != 5)
+        {
+            WindowService?.NotificationManager?.Show($"For Newtom's metod you must specify 5 points", NotificationType.Warning, TimeSpan.FromSeconds(3));
+            return;
+        }
 
+        AproximateFuncs.Add(new AproxNewtonFunc([.. Coords]));
+
+        UpdatePlot();
     }
 
     [RelayCommand]
-    void SquresSmoothing() {
+    void SquresSmoothing() 
+    {
 
     }
 
@@ -101,9 +120,9 @@ public partial class MainWindowViewModel : ViewModelBase
         }
     }
 
-    private bool CanEditPolynomia() => SelectedPolynomia != null;
+    private bool CanEditAprFunc() => SelectedAprFunc != null;
 
-    private PolynomiaViewModel? TryParsePolynomiaInput()
+    private Polynomia? TryParsePolynomiaInput()
     {
         List<double> data = [];
         
@@ -120,7 +139,7 @@ public partial class MainWindowViewModel : ViewModelBase
             }
         }
 
-        return new PolynomiaViewModel(data);
+        return new Polynomia(data);
     }
 
     [RelayCommand]
@@ -129,37 +148,37 @@ public partial class MainWindowViewModel : ViewModelBase
         var res = TryParsePolynomiaInput(); 
         if (res is not null) {
             res.Points = [.. Coords];
-            Polynomias.Add(res);
+            AproximateFuncs.Add(res);
             
             UpdatePlot();
         }
 
     }
 
-    [RelayCommand(CanExecute = nameof(CanEditPolynomia))]
-    private void ReplacePolynomia()
+    [RelayCommand(CanExecute = nameof(CanEditAprFunc))]
+    private void ReplaceAprFunc()
     {
-        if (SelectedPolynomia is null) return;
+        if (SelectedAprFunc is null) return;
 
         var res = TryParsePolynomiaInput();
         if (res is not null)
         {
-            Polynomias[Polynomias.IndexOf(SelectedPolynomia)] = res;
             res.Points = [.. Coords];
-            SelectedPolynomia = null;
+            AproximateFuncs[AproximateFuncs.IndexOf(SelectedAprFunc)] = res;
+            SelectedAprFunc = null;
 
             UpdatePlot();
         }
     }
 
-    [RelayCommand(CanExecute = nameof(CanEditPolynomia))]
-    private void DeletePolynomia()
+    [RelayCommand(CanExecute = nameof(CanEditAprFunc))]
+    private void DeleteAprFunc()
     {
-        if (SelectedPolynomia is null) return;
+        if (SelectedAprFunc is null) return;
 
-        Polynomias.Remove(SelectedPolynomia);
+        AproximateFuncs.Remove(SelectedAprFunc);
 
-        SelectedPolynomia = null;
+        SelectedAprFunc = null;
 
         UpdatePlot();
     }
@@ -174,11 +193,11 @@ public partial class MainWindowViewModel : ViewModelBase
         if (APlot is null)
             return;
         
-        double[][] dataX = new double[Polynomias.Count][];
-        double[][] dataY = new double[Polynomias.Count][];
+        double[][] dataX = new double[AproximateFuncs.Count][];
+        double[][] dataY = new double[AproximateFuncs.Count][];
 
         int dataIndex = 0;
-        foreach(var item in Polynomias)
+        foreach(var item in AproximateFuncs)
         {
             double min = double.MaxValue;
             double max = double.MinValue;
