@@ -7,6 +7,8 @@ using Avalonia.Markup.Xaml;
 using laba3.ViewModels;
 using laba3.Views;
 
+using laba3.Services;
+
 namespace laba3;
 
 public partial class App : Application
@@ -23,10 +25,15 @@ public partial class App : Application
             // Avoid duplicate validations from both Avalonia and the CommunityToolkit. 
             // More info: https://docs.avaloniaui.net/docs/guides/development-guides/data-validation#manage-validationplugins
             DisableAvaloniaDataAnnotationValidation();
+            
+            MainWindowViewModel MainWindowVM = new();
+
             desktop.MainWindow = new MainWindow
             {
-                DataContext = new MainWindowViewModel(),
+                DataContext = MainWindowVM,
             };
+
+            MainWindowVM.WindowService = new WindowService(desktop.MainWindow);
         }
 
         base.OnFrameworkInitializationCompleted();

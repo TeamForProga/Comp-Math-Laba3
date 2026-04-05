@@ -1,0 +1,55 @@
+using System.Collections.Generic;
+
+namespace laba3.Models;
+
+public class Polynomia
+{
+    public List<double> Coefficients = [];
+    public List<Coord> Points = [];
+
+    public string Name = "Some function";
+
+
+    public double Func(double x)
+    {
+        double value = 0;
+        double xPowerN = 1;
+        
+        foreach (var coeff in Coefficients)
+        {
+            value += xPowerN * coeff;
+            xPowerN *= x;
+        }
+
+        return value;
+    }
+
+    public Polynomia(List<double> coefficients, List<Coord> points)
+    {
+        Coefficients = [.. coefficients ];
+        points = [.. points];
+    }
+
+    public double GetCoefficient(int index)
+    {
+        if (index >= Coefficients.Count)
+            return 0;
+        else
+            return Coefficients[index];
+    }
+
+    public void SetCoefficint(int index, double value)
+    {
+        if (index >= Coefficients.Count)
+            for (int i = 5 - Coefficients.Count; i > 0; --i)
+                Coefficients.Add(0);
+
+        Coefficients[index] = value;
+    }
+
+    public double this[int index]
+    {
+        get => GetCoefficient(index);
+        set => SetCoefficint(index, value);
+    }
+}

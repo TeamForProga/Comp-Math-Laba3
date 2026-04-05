@@ -2,20 +2,133 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:laba3.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:dg="clr-namespace:Avalonia.Controls.DataGrid;assembly=Avalonia.Controls.DataGrid"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="laba3.Views.MainWindow"
         xmlns:ScottPlot="clr-namespace:ScottPlot.Avalonia;assembly=ScottPlot.Avalonia"
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/avalonia-logo.ico"
-        Title="laba3">
+        Title="laba3"
+        Width="1000"
+        Height="600">
 
     <Design.DataContext>
         <!-- This only sets the DataContext for the previewer in an IDE,
              to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
         <vm:MainWindowViewModel/>
     </Design.DataContext>
-    
-    <ScottPlot:AvaPlot Name="AvaPlot1"/>
 
+    <TabControl>
+        <TabItem Header="Graph">
+            
+            <ScottPlot:AvaPlot Name="AvaPlot1"/>
+        </TabItem>
+
+        <TabItem Header="Functions">
+            <Grid ColumnDefinitions="*, *">
+                <Grid Grid.Column="0" RowDefinitions="Auto, *" Margin="12"> 
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                            <Button Content="Lagrange" Width="100" Command="{Binding LagrangeAproximateCommand}"/>
+                            <Button Content="Newton" Width="100" Command="{Binding NewtonAproximateCommand}"/>
+                            <Button Content="Squres" Width="100" Command="{Binding SquresSmoothingCommand}"/>
+                        </StackPanel>
+                        
+                        <Grid ColumnDefinitions="*, *, Auto">
+                            <StackPanel Grid.Column="0" Margin="0 0 10 0"> 
+                                <TextBlock
+                                    Text="x"
+                                    VerticalAlignment="Center"/>
+                                <TextBox Text="{Binding CoordInput[0]}"/> 
+                            </StackPanel>
+                            
+                            <StackPanel Grid.Column="1" Margin="0 0 10 0">  
+                                <TextBlock
+                                    Text="f(x)"
+                                    VerticalAlignment="Center"/>
+                                <TextBox Text="{Binding CoordInput[1]}"/> 
+                            </StackPanel>
+                            <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="0 0 0 0" 
+                            HorizontalAlignment="Right" VerticalAlignment="Bottom"> 
+                                <Button Content="Delete" Width="100" Command="{Binding DeleteCoordCommand}"/>
+                                <Button Content="Replace" Width="100" Command="{Binding ReplaceCoordCommand}"/>
+                                <Button Content="Add" Width="100" Command="{Binding AddCoordCommand}"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+
+                    <DataGrid Grid.Row="1" Margin="0 8 0 0" ItemsSource="{Binding Coords}"
+                            AutoGenerateColumns="False" IsReadOnly="True"
+                            GridLinesVisibility="All" BorderThickness="1"
+                            BorderBrush="Gray" ColumnWidth="*"
+                            SelectedItem="{Binding SelectedCoord}" SelectionMode="Single">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="X" Binding="{Binding X}" Width="*"/>
+                            <DataGridTextColumn Header="F(X)" Binding="{Binding Y}" Width="*"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+                <Grid Grid.Column="1" RowDefinitions="Auto, *" Margin="12">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" >
+                            <Button Content="Add" Width="100" Command="{Binding AddPolynomiaCommand}"/>
+                            <Button Content="Replace" Width="100" Command="{Binding ReplacePolynomiaCommand}"/>
+                            <Button Content="Delete" Width="100" Command="{Binding DeletePolynomiaCommand}"/>
+                        </StackPanel>
+                        <Grid ColumnDefinitions="*, *, *, *, *">
+                            <StackPanel Grid.Column="0" Margin="0 0 10 0"> 
+                                <TextBlock
+                                    Text="a0"
+                                    VerticalAlignment="Center"/>
+                                <TextBox Text="{Binding PolynomiaInput[0]}"/> 
+                            </StackPanel>
+                            
+                            <StackPanel Grid.Column="1" Margin="0 0 10 0">  
+                                <TextBlock
+                                    Text="a1"
+                                    VerticalAlignment="Center"/>
+                                <TextBox Text="{Binding PolynomiaInput[1]}"/> 
+                            </StackPanel>
+                            
+                            <StackPanel Grid.Column="2" Margin="0 0 10 0">  
+                                <TextBlock
+                                    Text="a2"
+                                    VerticalAlignment="Center"/>
+                                <TextBox Text="{Binding PolynomiaInput[2]}"/> 
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="3" Margin="0 0 10 0">  
+                                <TextBlock
+                                    Text="a3"
+                                    VerticalAlignment="Center"/>
+                                <TextBox Text="{Binding PolynomiaInput[3]}"/> 
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="4" Margin="0 0 0 0">  
+                                <TextBlock
+                                    Text="a4"
+                                    VerticalAlignment="Center"/>
+                                <TextBox Text="{Binding PolynomiaInput[4]}"/> 
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+
+                    <DataGrid Grid.Row="1" Margin="0 8 0 0" ItemsSource="{Binding Polynomias}"
+                            AutoGenerateColumns="False" IsReadOnly="True"
+                            GridLinesVisibility="All" BorderThickness="1"
+                            BorderBrush="Gray" ColumnWidth="*"
+                            SelectedItem="{Binding SelectedPolynomia}" SelectionMode="Single">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="a0" Binding="{Binding Coefficients[0]}" Width="*"/>
+                            <DataGridTextColumn Header="a1" Binding="{Binding Coefficients[1]}" Width="*"/>
+                            <DataGridTextColumn Header="a2" Binding="{Binding Coefficients[2]}" Width="*"/>
+                            <DataGridTextColumn Header="a3" Binding="{Binding Coefficients[3]}" Width="*"/>
+                            <DataGridTextColumn Header="a4" Binding="{Binding Coefficients[4]}" Width="*"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </Grid>
+        </TabItem>
+    </TabControl>
 </Window>
