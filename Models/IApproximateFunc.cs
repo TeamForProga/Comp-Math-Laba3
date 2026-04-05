@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace laba3.Models;
 
-public interface IAproximateFunc
+public interface IApproximateFunc
 {
     List<Coord> Points { get; set; }
 

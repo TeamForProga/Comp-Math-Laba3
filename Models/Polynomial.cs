@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace laba3.Models;
 
-public class Polynomia : IAproximateFunc
+public class Polynomia : IApproximateFunc
 {
     public List<double> Coefficients = [];
     public List<Coord> Points { get; set; } = [];

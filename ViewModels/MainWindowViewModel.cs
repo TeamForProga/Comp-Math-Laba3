@@ -16,15 +16,16 @@ using laba3.Models;
 
 public partial class MainWindowViewModel : ViewModelBase
 {
-    public ObservableCollection<IAproximateFunc> AproximateFuncs { get; } = [];
+    public ObservableCollection<IApproximateFunc> ApproximateFuncs { get; } = [];
     public ObservableCollection<Coord> Coords { get; } = [];
 
     [NotifyCanExecuteChangedFor(nameof(DeleteAprFuncCommand))]
     [NotifyCanExecuteChangedFor(nameof(ReplaceAprFuncCommand))]
-    [ObservableProperty] private IAproximateFunc? _selectedAprFunc;
+    [ObservableProperty] private IApproximateFunc? _selectedAprFunc;
     
     public ObservableCollection<string> CoordInput { get; } = ["", ""];
     public ObservableCollection<string> PolynomiaInput { get; } = ["", "","", "", ""];
+    public string SquresPowerInput { get; set; } = "";
 
     [NotifyCanExecuteChangedFor(nameof(ReplaceCoordCommand))]
     [NotifyCanExecuteChangedFor(nameof(DeleteCoordCommand))]
@@ -33,29 +34,29 @@ public partial class MainWindowViewModel : ViewModelBase
     AvaPlot? APlot = null;
 
     [RelayCommand]
-    void LagrangeAproximate()
+    void LagrangeApproximate()
     {
-        if (Coords.Count != 5)
+        if (Coords.Count < 1)
         {
-            WindowService?.NotificationManager?.Show($"For Lagrange's method you must specify 5 points", NotificationType.Warning, TimeSpan.FromSeconds(3));
+            WindowService?.NotificationManager?.Show($"For Lagrange's method you must specify at least one point", NotificationType.Warning, TimeSpan.FromSeconds(3));
             return;
         }
 
-        AproximateFuncs.Add(new AproxLagrangeFunc([.. Coords]));
+        ApproximateFuncs.Add(new ApproxLagrangeFunc([.. Coords ]));
         
         UpdatePlot();
     }
 
     [RelayCommand]
-    void NewtonAproximate()
+    void NewtonApproximate()
     {
-        if (Coords.Count != 5)
+        if (Coords.Count < 1)
         {
-            WindowService?.NotificationManager?.Show($"For Newtom's metod you must specify 5 points", NotificationType.Warning, TimeSpan.FromSeconds(3));
+            WindowService?.NotificationManager?.Show($"For Newtom's metod you must specify at least one point", NotificationType.Warning, TimeSpan.FromSeconds(3));
             return;
         }
 
-        AproximateFuncs.Add(new AproxNewtonFunc([.. Coords]));
+        ApproximateFuncs.Add(new ApproxNewtonFunc([.. Coords ]));
 
         UpdatePlot();
     }
@@ -63,7 +64,19 @@ public partial class MainWindowViewModel : ViewModelBase
     [RelayCommand]
     void SquresSmoothing() 
     {
+        if (!int.TryParse(SquresPowerInput, out int power)) {
+            WindowService?.NotificationManager?.Show($"Power must be natural number (indcluded zero)", NotificationType.Warning, TimeSpan.FromSeconds(3));
+            return;
+        }
+        else if (power >= Coords.Count) 
+        {
+            WindowService?.NotificationManager?.Show($"Points count must be greater then power", NotificationType.Warning, TimeSpan.FromSeconds(3));
+            return;
+        }
 
+        ApproximateFuncs.Add(new LeastSquares([.. Coords ], power));
+
+        UpdatePlot();
     }
 
     private bool CanEditCoord() => SelectedCoord != null;
@@ -148,7 +161,7 @@ public partial class MainWindowViewModel : ViewModelBase
         var res = TryParsePolynomiaInput(); 
         if (res is not null) {
             res.Points = [.. Coords];
-            AproximateFuncs.Add(res);
+            ApproximateFuncs.Add(res);
             
             UpdatePlot();
         }
@@ -164,7 +177,7 @@ public partial class MainWindowViewModel : ViewModelBase
         if (res is not null)
         {
             res.Points = [.. Coords];
-            AproximateFuncs[AproximateFuncs.IndexOf(SelectedAprFunc)] = res;
+            ApproximateFuncs[ApproximateFuncs.IndexOf(SelectedAprFunc)] = res;
             SelectedAprFunc = null;
 
             UpdatePlot();
@@ -176,7 +189,7 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         if (SelectedAprFunc is null) return;
 
-        AproximateFuncs.Remove(SelectedAprFunc);
+        ApproximateFuncs.Remove(SelectedAprFunc);
 
         SelectedAprFunc = null;
 
@@ -193,11 +206,11 @@ public partial class MainWindowViewModel : ViewModelBase
         if (APlot is null)
             return;
         
-        double[][] dataX = new double[AproximateFuncs.Count][];
-        double[][] dataY = new double[AproximateFuncs.Count][];
+        double[][] dataX = new double[ApproximateFuncs.Count][];
+        double[][] dataY = new double[ApproximateFuncs.Count][];
 
         int dataIndex = 0;
-        foreach(var item in AproximateFuncs)
+        foreach(var item in ApproximateFuncs)
         {
             double min = double.MaxValue;
             double max = double.MinValue;
@@ -227,11 +240,16 @@ public partial class MainWindowViewModel : ViewModelBase
 
         for (int i = 0; i < dataX.Length; ++i)
         {
-            APlot.Plot.Add.Scatter(dataX[i], dataY[i]);
-            Console.WriteLine($"{dataX[i].Length}");
+            var scatter = APlot.Plot.Add.Scatter(dataX[i], dataY[i]);
+            
+            scatter.MarkerSize = 2;
 
-            for (int j = 0; j < dataX[i].Length; ++j)
-                Console.WriteLine($"{dataX[i][j]} , {dataY[i][j]}");
+            foreach (var point in ApproximateFuncs[i].Points) {
+                APlot.Plot.Add.Marker(point.X, point.Y, ScottPlot.MarkerShape.FilledCircle, 10, scatter.Color);
+                var line = APlot.Plot.Add.Line(point.X, 0, point.X, point.Y);
+                line.LinePattern = ScottPlot.LinePattern.Dashed;
+                line.Color = ScottPlot.Colors.SeaGreen;
+            }
         }
 
         APlot.Refresh();

@@ -30,9 +30,10 @@
                 <Grid Grid.Column="0" RowDefinitions="Auto, *" Margin="12"> 
                     <StackPanel>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                            <Button Content="Lagrange" Width="100" Command="{Binding LagrangeAproximateCommand}"/>
-                            <Button Content="Newton" Width="100" Command="{Binding NewtonAproximateCommand}"/>
+                            <Button Content="Lagrange" Width="100" Command="{Binding LagrangeApproximateCommand}"/>
+                            <Button Content="Newton" Width="100" Command="{Binding NewtonApproximateCommand}"/>
                             <Button Content="Squres" Width="100" Command="{Binding SquresSmoothingCommand}"/>
+                            <TextBox Text="{Binding SquresPowerInput}" Watermark="Power"/> 
                         </StackPanel>
                         
                         <Grid ColumnDefinitions="*, *, Auto">
@@ -114,7 +115,7 @@
                         </Grid>
                     </StackPanel>
 
-                    <DataGrid Grid.Row="1" Margin="0 8 0 0" ItemsSource="{Binding AproximateFuncs}"
+                    <DataGrid Grid.Row="1" Margin="0 8 0 0" ItemsSource="{Binding ApproximateFuncs}"
                             AutoGenerateColumns="False" IsReadOnly="True"
                             GridLinesVisibility="All" BorderThickness="1"
                             BorderBrush="Gray" ColumnWidth="*"
