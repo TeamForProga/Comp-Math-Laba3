@@ -13,6 +13,7 @@ using ScottPlot.Avalonia;
 using laba3.ViewModels;
 using laba3.Models;
 using laba3.Services;
+using System.Linq;
 
 public partial class MainWindowViewModel : ViewModelBase
 {
@@ -105,8 +106,15 @@ public partial class MainWindowViewModel : ViewModelBase
     private void AddCoord()
     {
         var res = TryParseCoordInput();
-        if (res is not null) 
+
+        if (res is null)
+            return; 
+        
+        var coord = Coords.FirstOrDefault(c => Math.Abs(c.X - res.X) < 0.0000001);
+        if (coord is null)
             Coords.Add(res);
+        else
+            Coords[Coords.IndexOf(coord)] = res;
     }
 
     [RelayCommand(CanExecute = nameof(CanEditCoord))]
@@ -116,7 +124,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
         Coords.Remove(SelectedCoord);
 
-        SelectedCoord = null;
+        //SelectedCoord = null;
     }
 
     [RelayCommand(CanExecute = nameof(CanEditCoord))]
@@ -129,7 +137,7 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             Coords[Coords.IndexOf(SelectedCoord)] = res;
 
-            SelectedCoord = null;
+            //SelectedCoord = null;
         }
     }
 
@@ -178,7 +186,7 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             //res.Points = [.. Coords];
             ApproximateFuncs[ApproximateFuncs.IndexOf(SelectedAprFunc)] = res;
-            SelectedAprFunc = null;
+            //SelectedAprFunc = null;
 
             UpdatePlot();
         }
@@ -191,7 +199,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
         ApproximateFuncs.Remove(SelectedAprFunc);
 
-        SelectedAprFunc = null;
+        //SelectedAprFunc = null;
 
         UpdatePlot();
     }
