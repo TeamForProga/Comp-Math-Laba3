@@ -38,7 +38,7 @@ public class LeastSquares : IApproximateFunc
     private double GetD(int j)
     {
         double sum = 0;
-        for (int i = 0; i < k; ++i)
+        for (int i = 0; i < n; ++i)
         {
             sum += Y[i] * Math.Pow(X[i], j);
         }
@@ -50,7 +50,7 @@ public class LeastSquares : IApproximateFunc
     private double GetC(int m)
     {
         double sum = 0;
-        for (int i = 0; i < k; ++i)
+        for (int i = 0; i < n; ++i)
         {
             sum += Math.Pow(X[i], m);
         }
@@ -71,30 +71,20 @@ public class LeastSquares : IApproximateFunc
         Y = Vector<double>.Build.DenseOfArray([.. Points.Select(p => p.Y)]);
         
         // коэффициенты правой части
-        var D = Vector<double>.Build.Dense(n);
-        for (int i = 0; i < n; ++i) {
+        var D = Vector<double>.Build.Dense(k);
+        for (int i = 0; i < k; ++i) {
             D[i] = GetD(i);
         }    
 
         // Коэффициенты левой части
-
-
-        var M = Matrix<double>.Build.Dense(n, k);
-        for (int i = 0; i < n; ++i)
+        var M = Matrix<double>.Build.Dense(k, k);
+        for (int i = 0; i < k; ++i)
         {
             for (int j = 0; j < k; ++j)
             {
                 M[i, j] = GetC(i + j);
             }
         }
-
-        // A = (M * M^T)^-1 * M^T * D
-        if (k != n)
-        {
-            D = M.Transpose() * D;
-            M = M.Transpose() * M;
-        }
-        PrintMatrix(M.ToArray(), D.ToArray(), k);
 
         // Значения коэффициентов аппроксимирующего многочлена Ai являются решением полученной системы 
         Coefficients = GaussRowPivot(M.ToArray(), D.ToArray(), k);
@@ -103,7 +93,8 @@ public class LeastSquares : IApproximateFunc
 
         Name += $"^{power}";
     }
-/// <summary>
+    
+    /// <summary>
     /// Метод Гаусса с ВЫБОРОМ ГЛАВНОГО ЭЛЕМЕНТА ПО СТРОКЕ.
     /// На каждом шаге k ищем максимальный по модулю элемент в строке k
     /// среди столбцов k..n-1. Меняем столбцы (= переставляем неизвестные).

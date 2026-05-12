@@ -24,10 +24,13 @@ public class ApproxLagrangeFunc : IApproximateFunc
 
         for (int i = 0; i < Points.Count; ++i)
         {
-            double multValue = Points[i].Y;
+            double multValue = Points[i].Y; // fi
             for (int j = 0; j < Points.Count; ++j)
             {
                 if (j == i) continue;
+                // x - xj
+                // ------
+                // xi - xj
                 multValue *= (x - Points[j].X) / (Points[i].X - Points[j].X);
             }
 
