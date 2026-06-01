@@ -14,6 +14,10 @@ using laba3.ViewModels;
 using laba3.Models;
 using laba3.Services;
 using System.Linq;
+using Avalonia;
+using ScottPlot;
+using ScottPlot.AxisRules;
+using Avalonia.Media.TextFormatting.Unicode;
 
 public partial class MainWindowViewModel : ViewModelBase
 {
@@ -22,6 +26,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
     [NotifyCanExecuteChangedFor(nameof(DeleteAprFuncCommand))]
     [NotifyCanExecuteChangedFor(nameof(ReplaceAprFuncCommand))]
+    [NotifyCanExecuteChangedFor(nameof(FocusAprFuncCommand))]
     [ObservableProperty] private IApproximateFunc? _selectedAprFunc;
     
     public ObservableCollection<string> CoordInput { get; } = ["", ""];
@@ -203,6 +208,38 @@ public partial class MainWindowViewModel : ViewModelBase
 
         UpdatePlot();
     }
+
+    [RelayCommand(CanExecute = nameof(CanEditAprFunc))]
+    private void FocusAprFunc() 
+    {
+        if (SelectedAprFunc is null) return;
+
+        var points = SelectedAprFunc.Points;
+        if (points.Count == 0) return;
+
+        double xMin = points.Min(p => p.X);
+        double xMax = points.Max(p => p.X);
+        
+        double yMin = double.PositiveInfinity;
+        double yMax = double.NegativeInfinity;
+
+        for (double i = xMin; i <= xMax; i +=  (xMax - xMin) / 1000) {
+            if (yMin > SelectedAprFunc.Func(i)) {
+                yMin = SelectedAprFunc.Func(i);
+            }
+            if (yMax < SelectedAprFunc.Func(i)) {
+                yMax = SelectedAprFunc.Func(i);
+            }
+        }
+
+        double padX = (xMax - xMin) * 0.1;
+        double padY = (yMax - yMin) * 0.1;
+
+        APlot?.Plot.Axes.SetLimits(xMin - padX, xMax + padX, yMin - padY, yMax + padY);
+        //UpdatePlot();
+
+        Console.WriteLine($"{xMin}, {xMax}, {yMin}, {yMax}");
+    }
     
     public void AfterWindowLoaded(AvaPlot? avaPlot)
     {
@@ -269,10 +306,15 @@ public partial class MainWindowViewModel : ViewModelBase
                     line.LinePattern = ScottPlot.LinePattern.Dashed;
                     line.Color = ScottPlot.Colors.SeaGreen;
                 }
-        }
 
+            scatter.LegendText = ApproximateFuncs[i].Name;
+        }   
+
+        APlot.Plot.ShowLegend();
+        APlot.Plot.Legend.Alignment = Alignment.UpperRight;
         APlot.Refresh();
     }
+
 
     public AppState BuildState()
     {
